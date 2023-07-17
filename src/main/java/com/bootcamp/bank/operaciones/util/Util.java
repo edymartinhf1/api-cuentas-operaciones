@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -12,12 +13,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Random;
 @Component
 @Log4j2
-public class Util {
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
+public final class Util {
 
-    private static Random random = new Random();
+    private static SecureRandom random = new SecureRandom();
     public static int generateRandomNumber(int min, int max) {
         return random.nextInt(max - min + 1) + min;
     }
