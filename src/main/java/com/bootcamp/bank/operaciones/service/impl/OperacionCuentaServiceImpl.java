@@ -143,15 +143,12 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
     Function<String,CuentasType> setTipoCuenta = tipoCuenta  -> {
         CuentasType cuentasType= null;
         switch (tipoCuenta) {
-            case "PROP" -> {
-                cuentasType= CuentasType.PROPIA;
-            }
-            case "TERC" -> {
-                cuentasType= CuentasType.TERCEROS;
-            }
-            case "INTB" -> {
-                cuentasType= CuentasType.INTERBANCARIA;
-            }
+            case "PROP" -> cuentasType= CuentasType.PROPIA;
+
+            case "TERC" -> cuentasType= CuentasType.TERCEROS;
+
+            case "INTB" -> cuentasType= CuentasType.INTERBANCARIA;
+
             default -> {
             }
         }
