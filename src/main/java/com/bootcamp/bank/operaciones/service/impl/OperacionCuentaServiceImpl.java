@@ -19,9 +19,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @Service
 @RequiredArgsConstructor
@@ -127,14 +127,14 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
         return operacionesCuentaRepository.findByNumeroCuentaAndFechaOperacionBetween(numeroCuenta,fecInicial,fecFinal);
     }
 
-    Function<OperacionCtaDao,OperacionCtaDao> operacionCta = cta -> {
+    UnaryOperator<OperacionCtaDao> operacionCta = cta -> {
         LocalDateTime fecha = LocalDateTime.now();
         cta.setFechaOperacionT(Util.getCurrentDateAsString("dd/MM/yyyy"));
         cta.setFechaOperacion(fecha);
         return cta;
     };
 
-    Function<TransferenciaCtaDao,TransferenciaCtaDao> operacionTransferCta = cta -> {
+    UnaryOperator<TransferenciaCtaDao> operacionTransferCta = cta -> {
         LocalDateTime fecha = LocalDateTime.now();
         cta.setFechaOperacion(fecha);
         return cta;
@@ -149,8 +149,8 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
 
             case "INTB" -> cuentasType= CuentasType.INTERBANCARIA;
 
-            default -> {
-            }
+            default -> cuentasType = CuentasType.INVALIDO;
+
         }
         return cuentasType;
     };
