@@ -2,10 +2,7 @@ package com.bootcamp.bank.operaciones.controller;
 
 import com.bootcamp.bank.operaciones.model.OperacionCta;
 import com.bootcamp.bank.operaciones.model.OperacionCtaPost;
-import com.bootcamp.bank.operaciones.model.TransferenciaCta;
-import com.bootcamp.bank.operaciones.model.TransferenciaCtaPost;
 import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
-import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.service.OperacionCuentaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -15,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Clase Controller Operaciones depositos y retiros de cuentas
+ * Clase Controller Operaciones depositos y retiros de cuentas bancarias
  */
 @RestController
 @RequestMapping("/operaciones/cuentas")
@@ -36,20 +33,6 @@ public class OperacionesCuentaController {
     public Mono<OperacionCta> saveOperation(@RequestBody OperacionCtaPost operationCtaPost){
         return operacionCuentaService.saveOperation(this.fromOperacionPostToOperacionDao(operationCtaPost)).
                 map(this::fromOperacionClienteDaoToOperacionDto);
-    }
-
-
-
-    /**
-     * Permite registrar transferencias
-     * Implementar las transferencias bancarias entre cuentas del mismo cliente y cuentas a terceros del mismo banco.
-     * @param transferenciaCtaPost
-     * @return
-     */
-    @PostMapping("/transfer")
-    public Mono<TransferenciaCta> saveTransferOperation(@RequestBody TransferenciaCtaPost transferenciaCtaPost){
-        return operacionCuentaService.saveTransferOperation(this.fromTransferenciaCtaPostToTransferenciaCtaDao(transferenciaCtaPost)).
-                map(this::fromTransferenciaCtaDaoToTransferenciaCta);
     }
 
 
@@ -137,16 +120,5 @@ public class OperacionesCuentaController {
         return operacionCtaDao;
     }
 
-    private TransferenciaCta fromTransferenciaCtaDaoToTransferenciaCta(TransferenciaCtaDao transferenciaCtaDao) {
-        TransferenciaCta transferenciaCta = new TransferenciaCta();
-        BeanUtils.copyProperties(transferenciaCtaDao,transferenciaCta);
-        return transferenciaCta;
-    }
-
-    private TransferenciaCtaDao fromTransferenciaCtaPostToTransferenciaCtaDao(TransferenciaCtaPost transferenciaCtaPost) {
-        TransferenciaCtaDao transferenciaCtaDao = new TransferenciaCtaDao();
-        BeanUtils.copyProperties(transferenciaCtaPost,transferenciaCtaDao);
-        return transferenciaCtaDao;
-    }
 
 }

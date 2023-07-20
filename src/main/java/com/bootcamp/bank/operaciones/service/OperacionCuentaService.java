@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface OperacionCuentaService {
     Mono<OperacionCtaDao> saveOperation(OperacionCtaDao operationCtaDao);
-    Mono<TransferenciaCtaDao> saveTransferOperation(TransferenciaCtaDao transferenciaCtaDao);
     Flux<OperacionCtaDao> findAll();
     Flux<OperacionCtaDao> findByNumeroCuenta(String numeroCuenta);
     Flux<OperacionCtaDao> findByNumeroCuentaAndTipoOperacion(String numeroCuenta,String tipoOperacion);

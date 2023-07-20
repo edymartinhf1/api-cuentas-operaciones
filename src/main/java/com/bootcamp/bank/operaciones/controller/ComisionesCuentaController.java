@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+/**
+ * Clase Comisiones
+ */
 @RestController
 @RequestMapping("/comisiones")
 @Log4j2
@@ -19,6 +22,11 @@ public class ComisionesCuentaController {
 
     private final ComisionesService comisionesService;
 
+    /**
+     * Permite obtener las comisiones cargadas por id cliente
+     * @param idCliente
+     * @return
+     */
     @GetMapping("/{idCliente}")
     Mono<RepCuentaComisiones> getComisionsCharged(@PathVariable  String idCliente){
         log.info("idcliente = "+idCliente);
