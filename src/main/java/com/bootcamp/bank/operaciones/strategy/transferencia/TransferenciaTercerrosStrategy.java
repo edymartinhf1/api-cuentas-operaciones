@@ -1,4 +1,4 @@
-package com.bootcamp.bank.operaciones.strategy;
+package com.bootcamp.bank.operaciones.strategy.transferencia;
 
 import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
 import com.bootcamp.bank.operaciones.exception.BusinessException;

@@ -5,21 +5,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-
 @Data
-@Document("operacionescuenta")
-public class OperacionCtaDao {
+@Document("operacionestarjetadebito")
+public class OperacionTarjetaDebitoDao {
     @Id
     private String id;
     private String idCliente;
-    private String tipoOperacion; // DEP = deposito , RET = RETIRO
-    private String medioPago; // EFEC = Efectivo / TARD = Tarjeta Debito ,
+    private String numeroTarjetaDebito;
+    private String tipoOperacion;
     private LocalDateTime fechaOperacion;
     private String fechaOperacionT;
-    private String numeroCuenta;
-    private String numeroTarjetaDebito;
-    private Boolean afectoComision;
     private Double importe;
-    private Double comision;
+
+
 
 }

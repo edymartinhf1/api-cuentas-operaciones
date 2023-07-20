@@ -4,29 +4,38 @@ import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
 import com.bootcamp.bank.operaciones.clients.ClientApiCuentas;
 import com.bootcamp.bank.operaciones.exception.BusinessException;
 import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
+import com.bootcamp.bank.operaciones.model.dao.repository.OperacionTarjetaDebitoRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
+import com.bootcamp.bank.operaciones.model.enums.MedioPagoType;
 import com.bootcamp.bank.operaciones.service.OperacionCuentaService;
+import com.bootcamp.bank.operaciones.strategy.mediopago.MedioPagoStrategy;
+import com.bootcamp.bank.operaciones.strategy.mediopago.MedioPagoStrategyFactory;
 import com.bootcamp.bank.operaciones.util.Util;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Log4j2
 public class OperacionCuentaServiceImpl implements OperacionCuentaService {
 
     private final OperacionesCuentaRepository operacionesCuentaRepository;
 
+    private final OperacionTarjetaDebitoRepository operacionTarjetaDebitoRepository;
+
     private final ClientApiClientes clientApiClientes;
 
     private final ClientApiCuentas clientApiCuentas;
+
+    private final MedioPagoStrategyFactory medioPagoStrategyFactory;
 
     @Override
     public Mono<OperacionCtaDao> saveOperation(OperacionCtaDao operationCtaDao) {
@@ -51,7 +60,10 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
                                                 finalOperationCtaDao.setAfectoComision(false);
                                                 finalOperationCtaDao.setComision(0.00);
                                             }
-                                            return operacionesCuentaRepository.save(finalOperationCtaDao);
+                                            MedioPagoType medioPagoType= setTipoPago.apply(finalOperationCtaDao.getMedioPago());
+                                            MedioPagoStrategy strategy= medioPagoStrategyFactory.getStrategy(medioPagoType);
+                                            return strategy.registrarTransferencia(operacionesCuentaRepository,operacionTarjetaDebitoRepository,finalOperationCtaDao);
+
                                         });
                             });
 
@@ -103,6 +115,20 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
         cta.setFechaOperacionT(Util.getCurrentDateAsString("dd/MM/yyyy"));
         cta.setFechaOperacion(fecha);
         return cta;
+    };
+
+
+    Function<String, MedioPagoType> setTipoPago = tipoCuenta  -> {
+        MedioPagoType medioPagoType= null;
+        switch (tipoCuenta) {
+            case "EFEC" -> medioPagoType= MedioPagoType.EFECTIVO;
+
+            case "TARD" -> medioPagoType= MedioPagoType.TARJETA_DEBITO;
+
+            default -> medioPagoType =MedioPagoType.INVALIDO;
+
+        }
+        return medioPagoType;
     };
 
 }

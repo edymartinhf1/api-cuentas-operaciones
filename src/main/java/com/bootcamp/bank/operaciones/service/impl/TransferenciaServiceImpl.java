@@ -6,8 +6,8 @@ import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepos
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
 import com.bootcamp.bank.operaciones.model.enums.CuentasType;
 import com.bootcamp.bank.operaciones.service.TransferenciaService;
-import com.bootcamp.bank.operaciones.strategy.TransferenciaStrategy;
-import com.bootcamp.bank.operaciones.strategy.TransferenciaStrategyFactory;
+import com.bootcamp.bank.operaciones.strategy.transferencia.TransferenciaStrategy;
+import com.bootcamp.bank.operaciones.strategy.transferencia.TransferenciaStrategyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
