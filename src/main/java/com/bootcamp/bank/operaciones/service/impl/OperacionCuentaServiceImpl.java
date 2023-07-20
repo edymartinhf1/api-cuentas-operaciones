@@ -65,6 +65,7 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
                                             return strategy.registrarOperacionctaBancaria(
                                                     operacionesCuentaRepository,
                                                     operacionTarjetaDebitoRepository,
+                                                    clientApiCuentas,
                                                     finalOperationCtaDao);
 
                                         });

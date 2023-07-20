@@ -1,6 +1,7 @@
 package com.bootcamp.bank.operaciones.clients;
 
 import com.bootcamp.bank.operaciones.model.Cuenta;
+import com.bootcamp.bank.operaciones.model.TarjetaDebito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -32,4 +33,19 @@ public class ClientApiCuentas {
                 .retrieve()
                 .bodyToFlux(Cuenta.class);
     }
+
+    public Flux<Cuenta> getCuentasPorTarjetaDebito(String numeroTarjetaDebito) {
+        return webClient.get()
+                .uri("/tarjeta/debito/cuentas/" + numeroTarjetaDebito)
+                .retrieve()
+                .bodyToFlux(Cuenta.class);
+    }
+
+    public Mono<TarjetaDebito> getTarjetaDebitoPorNumero(String numeroTarjetaDebito) {
+        return webClient.get()
+                .uri("/tarjeta/debito/numero/"+ numeroTarjetaDebito)
+                .retrieve()
+                .bodyToMono(TarjetaDebito.class);
+    }
+
 }
