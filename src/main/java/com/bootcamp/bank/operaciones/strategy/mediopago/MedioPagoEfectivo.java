@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
  */
 public class MedioPagoEfectivo implements MedioPagoStrategy {
     @Override
-    public Mono<OperacionCtaDao> registrarTransferencia(
+    public Mono<OperacionCtaDao> registrarOperacionctaBancaria(
             OperacionesCuentaRepository operacionesCuentaRepository,
             OperacionTarjetaDebitoRepository operacionTarjetaDebitoRepository,
             OperacionCtaDao operacionCtaDao

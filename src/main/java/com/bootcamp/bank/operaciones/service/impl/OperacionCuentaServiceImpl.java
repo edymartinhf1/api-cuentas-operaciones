@@ -62,7 +62,10 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
                                             }
                                             MedioPagoType medioPagoType= setTipoPago.apply(finalOperationCtaDao.getMedioPago());
                                             MedioPagoStrategy strategy= medioPagoStrategyFactory.getStrategy(medioPagoType);
-                                            return strategy.registrarTransferencia(operacionesCuentaRepository,operacionTarjetaDebitoRepository,finalOperationCtaDao);
+                                            return strategy.registrarOperacionctaBancaria(
+                                                    operacionesCuentaRepository,
+                                                    operacionTarjetaDebitoRepository,
+                                                    finalOperationCtaDao);
 
                                         });
                             });
@@ -96,9 +99,6 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
                 TemporalAdjusters.firstDayOfMonth());
         LocalDateTime fecFinal = LocalDateTime.now().with(
                 TemporalAdjusters.lastDayOfMonth());
-
-        log.info("localdate ini "+fecInicial);
-        log.info("localdate fin "+fecFinal);
 
         return operacionesCuentaRepository.findByNumeroCuentaAndFechaOperacionBetween(numeroCuenta,fecInicial,fecFinal);
     }

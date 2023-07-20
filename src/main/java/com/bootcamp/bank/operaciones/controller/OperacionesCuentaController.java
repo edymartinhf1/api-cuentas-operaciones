@@ -23,8 +23,8 @@ public class OperacionesCuentaController {
     private final OperacionCuentaService operacionCuentaService;
 
     /**
-     * Permite registrar depositos y retiros
-     *
+     * Permite registrar depositos y retiros en cuentas bancarias
+     * permite retirar y depositar con tarjeta de debito
      *
      * @param operationCtaPost
      * @return

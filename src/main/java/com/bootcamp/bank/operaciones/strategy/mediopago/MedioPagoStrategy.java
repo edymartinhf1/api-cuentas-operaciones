@@ -6,7 +6,7 @@ import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepos
 import reactor.core.publisher.Mono;
 
 public interface MedioPagoStrategy {
-    Mono<OperacionCtaDao> registrarTransferencia(
+    Mono<OperacionCtaDao> registrarOperacionctaBancaria(
             OperacionesCuentaRepository operacionesCuentaRepository,
             OperacionTarjetaDebitoRepository operacionTarjetaDebitoRepository,
             OperacionCtaDao operacionCtaDao
