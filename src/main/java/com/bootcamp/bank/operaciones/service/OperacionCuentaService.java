@@ -13,5 +13,6 @@ public interface OperacionCuentaService {
     Flux<OperacionCtaDao> findOperacionesByIdCliente(String idCliente);
     Flux<OperacionCtaDao> getOperationsByMonth(String numeroCuenta);
     Flux<OperacionCtaDao> findPagosByNumeroCuentaAndBetweenDates(String numeroCuenta,String fechaInicial,String fechaFinal);
+    Flux<OperacionCtaDao> findmovsByIdClienteAndNumeroTarjetaDebito(String idCliente,String numeroTarjetaDebito);
 
 }

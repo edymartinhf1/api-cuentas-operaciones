@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
- * Clase Medio Pago Tarjeta Debito
+ * Clase strategia Medio Pago Tarjeta Debito
  */
 @Component
 @Log4j2

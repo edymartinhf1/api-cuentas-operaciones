@@ -70,7 +70,7 @@ public class OperacionesCuentaController {
     }
 
     /**
-     * Permite Obtener tipos por numero de cuenta y tipo
+     * Permite Obtener operaciones por numero de cuenta y tipo de operacion
      * @param numeroCuenta
      * @param tipoOperacion
      * @return
@@ -86,6 +86,13 @@ public class OperacionesCuentaController {
 
     }
 
+    /**
+     * Permite obtener pagos por numero de producto de credito y fecha
+     * @param numeroCuenta
+     * @param fechaInicial
+     * @param fechaFinal
+     * @return
+     */
     @GetMapping("/numerocuenta/{numeroCuenta}/fechainicio/{fechaInicial}/fechafin/{fechaFinal}")
     public Flux<OperacionCta> findPagosByNumeroCreditoAndBetweenDates(
             @PathVariable(name = "numeroCuenta") String numeroCuenta,
@@ -101,6 +108,25 @@ public class OperacionesCuentaController {
                 .map(this::fromOperacionClienteDaoToOperacionDto);
 
     }
+
+
+    /**
+     * Permite obtener movimientos por id cliente y tarjeta de de debito
+     * @param idCliente
+     * @param numeroTarjetaDebito
+     * @return
+     */
+    @GetMapping("/movimiento/cliente/{idCliente}/debito/{numeroTarjetaDebito}")
+    public Flux<OperacionCta> findmovsByIdClienteAndNumeroTarjetaDebito(
+            @PathVariable(name = "idCliente") String idCliente,
+            @PathVariable(name = "numeroTarjetaDebito") String numeroTarjetaDebito
+    ) {
+        log.info("peticion idCliente:"+idCliente+" numeroTarjetaDebito:"+numeroTarjetaDebito);
+        return operacionCuentaService.findmovsByIdClienteAndNumeroTarjetaDebito(idCliente,numeroTarjetaDebito)
+                .map(this::fromOperacionClienteDaoToOperacionDto);
+
+    }
+
 
     @GetMapping("/test-comision/{numeroCuenta}")
     public Flux<OperacionCta> getOperationsByMonth(@PathVariable String numeroCuenta){

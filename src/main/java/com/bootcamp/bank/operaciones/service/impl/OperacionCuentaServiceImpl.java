@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -37,6 +38,15 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
 
     private final MedioPagoStrategyFactory medioPagoStrategyFactory;
 
+    /**
+     * Permite realizar retiros y depositos de cuentas bancarias
+     * aplica comisiones superado el numero de transacciones libres
+     * Permite pagos con tarjeta de debito
+     * tipoOperacion :  DEP = deposito , RET = RETIRO
+     * medioPago : EFEC = Efectivo / TARD = Tarjeta Debito ,
+     * @param operationCtaDao
+     * @return
+     */
     @Override
     public Mono<OperacionCtaDao> saveOperation(OperacionCtaDao operationCtaDao) {
         operationCtaDao = operacionCta.apply(operationCtaDao);
@@ -109,6 +119,12 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
         LocalDateTime fecInicial = Util.getLocalDatefromString(fechaInicial);
         LocalDateTime fecFinal = Util.getLocalDatefromString(fechaFinal);
         return operacionesCuentaRepository.findByNumeroCuentaAndFechaOperacionBetween(numeroCuenta,fecInicial,fecFinal);
+    }
+
+    @Override
+    public Flux<OperacionCtaDao> findmovsByIdClienteAndNumeroTarjetaDebito(String idCliente, String numeroTarjetaDebito) {
+        return operacionesCuentaRepository.findByIdClienteAndNumeroTarjetaDebito(idCliente,numeroTarjetaDebito)
+                .sort(Comparator.comparing(OperacionCtaDao::getFechaOperacion));
     }
 
     UnaryOperator<OperacionCtaDao> operacionCta = cta -> {

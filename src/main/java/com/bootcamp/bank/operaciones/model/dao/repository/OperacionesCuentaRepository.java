@@ -20,6 +20,8 @@ public interface OperacionesCuentaRepository extends ReactiveMongoRepository<Ope
 
     Flux<OperacionCtaDao> findByNumeroCuentaAndFechaOperacionBetween(String numeroCuenta, LocalDateTime fechaInicial, LocalDateTime fechaFinal);
 
+    Flux<OperacionCtaDao> findByIdClienteAndNumeroTarjetaDebito( String idCliente,String numeroTarjetaDebito);
+
 
 
 }

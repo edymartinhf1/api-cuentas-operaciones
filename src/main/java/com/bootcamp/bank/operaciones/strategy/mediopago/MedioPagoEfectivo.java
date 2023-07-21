@@ -7,7 +7,7 @@ import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepos
 import reactor.core.publisher.Mono;
 
 /**
- *
+ * Clase strategia Medio Pago Efectivo
  */
 public class MedioPagoEfectivo implements MedioPagoStrategy {
     @Override
