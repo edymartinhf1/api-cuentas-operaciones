@@ -1,7 +1,6 @@
 package com.bootcamp.bank.operaciones.service;
 
 import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
-import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

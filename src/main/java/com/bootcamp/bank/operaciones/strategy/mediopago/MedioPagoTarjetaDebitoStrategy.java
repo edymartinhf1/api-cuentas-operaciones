@@ -71,10 +71,11 @@ public class MedioPagoTarjetaDebitoStrategy implements MedioPagoStrategy{
             ClientApiCuentas clientApiCuentas,
             OperacionCtaDao operacionCtaDao
     ){
-        // verificar saldo en cuenta bancaria principal
+        // validar numero de tarjeta de debito
         return clientApiCuentas.getTarjetaDebitoPorNumero(operacionCtaDao.getNumeroTarjetaDebito())
                 .flatMap(tarjetaDebito -> {
                     log.info(" tarjeta debito "+tarjetaDebito.toString());
+                    // verificar saldo en cuenta bancaria principal
                     return this.validarSaldoCuentaBancaria(tarjetaDebito.getNumeroCuentaPrincipal(),operacionCtaDao.getImporte(),operacionesCuentaRepository)
                             .flatMap( saldoCubierto->{
                                 log.info("verificacion de cuentas principal "+saldoCubierto);
@@ -158,7 +159,7 @@ public class MedioPagoTarjetaDebitoStrategy implements MedioPagoStrategy{
                 }).collectList()
                 .flatMap(lista->{
                     log.info("lista cuentas asociadas "+lista.toString());
-                    Boolean cuentasAsociadasCubrensaldo= lista.stream().anyMatch(saldo->saldo.getFlagSaldoCubierto()==true);
+                    Boolean cuentasAsociadasCubrensaldo= lista.stream().anyMatch(saldo->saldo.getFlagSaldoCubierto());
                     log.info("validacion de cuentas asociadas"+cuentasAsociadasCubrensaldo);
                     //return cuentasAsociadasCubrensaldo?Mono.just(Boolean.TRUE):Mono.just(Boolean.FALSE);
                     return Mono.just(Boolean.FALSE);
