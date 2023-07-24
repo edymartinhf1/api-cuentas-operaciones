@@ -63,12 +63,15 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
                                 return this.getOperationsByMonth(cuenta.getNumeroCuenta())
                                         .collectList()
                                         .flatMap(lista->{
-                                            if (lista.size()>numeroTransaccionesLibres) {
-                                                finalOperationCtaDao.setAfectoComision(true);
-                                                finalOperationCtaDao.setComision(20.00);
-                                            } else {
-                                                finalOperationCtaDao.setAfectoComision(false);
-                                                finalOperationCtaDao.setComision(0.00);
+                                            log.info(" operaciones por mes "+lista.toString());
+                                            if (!lista.isEmpty()) {
+                                                if (lista.size() > numeroTransaccionesLibres) {
+                                                    finalOperationCtaDao.setAfectoComision(true);
+                                                    finalOperationCtaDao.setComision(20.00);
+                                                } else {
+                                                    finalOperationCtaDao.setAfectoComision(false);
+                                                    finalOperationCtaDao.setComision(0.00);
+                                                }
                                             }
                                             MedioPagoType medioPagoType= setTipoPago.apply(finalOperationCtaDao.getMedioPago());
                                             MedioPagoStrategy strategy= medioPagoStrategyFactory.getStrategy(medioPagoType);

@@ -6,4 +6,5 @@ import lombok.Data;
 public class CuentasSaldo {
     private String numeroCuenta;
     private Boolean flagSaldoCubierto;
+    private Double saldoDisponible;
 }

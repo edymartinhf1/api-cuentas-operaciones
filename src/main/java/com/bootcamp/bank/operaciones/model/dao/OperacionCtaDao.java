@@ -21,5 +21,6 @@ public class OperacionCtaDao {
     private Boolean afectoComision;
     private Double importe;
     private Double comision;
+    private String flgDistribucion;
 
 }

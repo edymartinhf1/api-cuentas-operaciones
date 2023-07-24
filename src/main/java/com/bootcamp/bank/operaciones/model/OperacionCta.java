@@ -17,4 +17,5 @@ public class OperacionCta {
     private Boolean afectoComision;
     private Double importe;
     private Double comision;
+    private String flgDistribucion;
     }
