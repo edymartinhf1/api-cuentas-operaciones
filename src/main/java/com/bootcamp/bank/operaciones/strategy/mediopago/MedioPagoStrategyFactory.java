@@ -27,5 +27,6 @@ public class MedioPagoStrategyFactory {
     private void initStrategies() {
         strategies.put(MedioPagoType.EFECTIVO, new MedioPagoEfectivo());
         strategies.put(MedioPagoType.TARJETA_DEBITO, new MedioPagoTarjetaDebitoStrategy());
+        strategies.put(MedioPagoType.MONEDERO_MOVIL, new MedioPagoMonederoMovilStrategy());
     }
 }

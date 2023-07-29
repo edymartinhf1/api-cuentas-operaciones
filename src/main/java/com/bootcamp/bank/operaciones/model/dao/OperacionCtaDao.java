@@ -13,11 +13,12 @@ public class OperacionCtaDao {
     private String id;
     private String idCliente;
     private String tipoOperacion; // DEP = deposito , RET = RETIRO
-    private String medioPago; // EFEC = Efectivo / TARD = Tarjeta Debito ,
+    private String medioPago; // EFEC = Efectivo / TARD = Tarjeta Debito ,MONM =Monedero Electronico Movil
     private LocalDateTime fechaOperacion;
     private String fechaOperacionT;
     private String numeroCuenta;
     private String numeroTarjetaDebito;
+    private String numeroMonedero;
     private Boolean afectoComision;
     private Double importe;
     private Double comision;

@@ -6,6 +6,7 @@ import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
+import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
 import com.bootcamp.bank.operaciones.util.Util;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class TransferenciaPropiasStrategy implements TransferenciaStrategy{
             TransferenciaCuentaRepository transferenciaCuentaRepository,
             OperacionesCuentaRepository operacionesCuentaRepository,
             ClientApiClientes clientApiClientes,
+            KafkaMonederoMessageSender kafkaMessageSender,
             TransferenciaCtaDao transferenciaCtaDao
     ) {
         log.info("TransferenciaPropiasStrategy ");

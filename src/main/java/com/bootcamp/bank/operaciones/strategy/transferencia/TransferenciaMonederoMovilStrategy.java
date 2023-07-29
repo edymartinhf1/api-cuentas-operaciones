@@ -2,18 +2,36 @@ package com.bootcamp.bank.operaciones.strategy.transferencia;
 
 import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
 import com.bootcamp.bank.operaciones.exception.BusinessException;
+import com.bootcamp.bank.operaciones.model.MonederoOperacionPost;
+import com.bootcamp.bank.operaciones.model.Response;
 import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
 import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
- * Clase Transferencia Terceros
+ * Permite registrar transferencias de monederoMovil entre clientes del mismo banco;
  */
-public class TransferenciaTercerrosStrategy implements TransferenciaStrategy{
+@Component
+@Log4j2
+public class TransferenciaMonederoMovilStrategy implements TransferenciaStrategy{
 
+
+
+
+    /**
+     * Metodo de transferencia de un cliente a otro por monedero movil del mismo banco
+     *
+     * @param transferenciaCuentaRepository
+     * @param operacionesCuentaRepository
+     * @param clientApiClientes
+     * @param transferenciaCtaDao
+     * @return
+     */
     @Override
     public Mono<TransferenciaCtaDao> registrarTransferencia(
             TransferenciaCuentaRepository transferenciaCuentaRepository,
@@ -21,14 +39,7 @@ public class TransferenciaTercerrosStrategy implements TransferenciaStrategy{
             ClientApiClientes clientApiClientes,
             KafkaMonederoMessageSender kafkaMessageSender,
             TransferenciaCtaDao transferenciaCtaDao
-
     ) {
-
-        // verifica cliente emisor
-        // verifica cliente receptor
-        // registra cargo a emisor
-        // registra abono a receptor
-        // registra transferencia
 
         return clientApiClientes.getClientes(transferenciaCtaDao.getIdClienteEmisor())
                 .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente emisor con el id "+transferenciaCtaDao.getIdClienteEmisor())))
@@ -52,10 +63,29 @@ public class TransferenciaTercerrosStrategy implements TransferenciaStrategy{
                                             operacionCtaAbono.setImporte(transferenciaCtaDao.getImporteTransferido());
                                             return operacionesCuentaRepository.save(operacionCtaAbono)
                                                     .flatMap(t -> {
+                                                        // Mensajeria KAFKA inicio
+                                                        MonederoOperacionPost monederoOperacionRetiro=new MonederoOperacionPost();
+                                                        monederoOperacionRetiro.setTipoOperacion("RET");
+                                                        monederoOperacionRetiro.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoEmisor());
+                                                        monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
+                                                        monederoOperacionRetiro.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                        Response responseR=kafkaMessageSender.sendOperacionMonedero(monederoOperacionRetiro);
+                                                        log.info("retiro "+monederoOperacionRetiro.toString());
+                                                        MonederoOperacionPost monederoOperacionDeposito=new MonederoOperacionPost();
+                                                        monederoOperacionDeposito.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoReceptor());
+                                                        monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
+                                                        monederoOperacionDeposito.setTipoOperacion("DEP");
+                                                        monederoOperacionDeposito.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                        log.info("deposito "+monederoOperacionDeposito.toString());
+                                                        Response responseD=kafkaMessageSender.sendOperacionMonedero(monederoOperacionDeposito);
+
+                                                        // Mensajeria KAFKA final
                                                         return transferenciaCuentaRepository.save(transferenciaCtaDao);
+
+
                                                     });
                                         });
-                    });
+                            });
                 });
     }
 }

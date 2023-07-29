@@ -4,13 +4,14 @@ import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
-import lombok.extern.slf4j.Slf4j;
+import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
+import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
 /**
  * Clase Transferencia InterBancarias
  */
-@Slf4j
+@Log4j2
 public class TransferenciaInterbancariaStrategy implements TransferenciaStrategy{
 
     /**
@@ -22,7 +23,14 @@ public class TransferenciaInterbancariaStrategy implements TransferenciaStrategy
      * @return
      */
     @Override
-    public Mono<TransferenciaCtaDao> registrarTransferencia(TransferenciaCuentaRepository transferenciaCuentaRepository, OperacionesCuentaRepository operacionesCuentaRepository, ClientApiClientes clientApiClientes, TransferenciaCtaDao transferenciaCtaDao) {
+    public Mono<TransferenciaCtaDao> registrarTransferencia(
+            TransferenciaCuentaRepository transferenciaCuentaRepository,
+            OperacionesCuentaRepository operacionesCuentaRepository,
+            ClientApiClientes clientApiClientes,
+            KafkaMonederoMessageSender kafkaMessageSender,
+            TransferenciaCtaDao transferenciaCtaDao
+
+    ) {
 
         return Mono.just(new TransferenciaCtaDao());
     }

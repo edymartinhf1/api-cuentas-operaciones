@@ -4,6 +4,7 @@ public enum CuentasType {
     PROPIA,
     TERCEROS,
     INTERBANCARIA,
+    MONEDERO_MOVIL,
 
     INVALIDO
 }

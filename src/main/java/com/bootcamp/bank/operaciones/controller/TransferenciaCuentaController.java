@@ -26,7 +26,9 @@ public class TransferenciaCuentaController {
 
     /**
      * Permite registrar transferencias
+     * Permite registrar transferencias por Monedero movil entregable 4 clientes mismo banco
      * Implementar las transferencias bancarias entre cuentas del mismo cliente y cuentas a terceros del mismo banco.
+     *
      * @param transferenciaCtaPost
      * @return
      */

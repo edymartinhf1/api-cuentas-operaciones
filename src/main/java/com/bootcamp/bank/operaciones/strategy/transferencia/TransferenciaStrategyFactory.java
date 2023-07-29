@@ -28,5 +28,6 @@ public class TransferenciaStrategyFactory {
         strategies.put(CuentasType.PROPIA, new TransferenciaPropiasStrategy());
         strategies.put(CuentasType.TERCEROS, new TransferenciaTercerrosStrategy());
         strategies.put(CuentasType.INTERBANCARIA, new TransferenciaInterbancariaStrategy());
+        strategies.put(CuentasType.MONEDERO_MOVIL, new TransferenciaMonederoMovilStrategy());
     }
 }

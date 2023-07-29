@@ -1,5 +1,6 @@
 package com.bootcamp.bank.operaciones.controller;
 
+import com.bootcamp.bank.operaciones.model.Comision;
 import com.bootcamp.bank.operaciones.model.reports.RepCuentaComisiones;
 import com.bootcamp.bank.operaciones.service.ComisionesService;
 
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -31,5 +33,10 @@ public class ComisionesCuentaController {
     Mono<RepCuentaComisiones> getComisionsCharged(@PathVariable  String idCliente){
         log.info("idcliente = "+idCliente);
         return comisionesService.getComisionsCharged(idCliente);
+    }
+
+    @GetMapping
+    Flux<Comision> getComisionsCharged(){
+        return comisionesService.getComisions();
     }
 }

@@ -5,6 +5,7 @@ import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
 import com.bootcamp.bank.operaciones.model.enums.CuentasType;
+import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
 import com.bootcamp.bank.operaciones.service.TransferenciaService;
 import com.bootcamp.bank.operaciones.strategy.transferencia.TransferenciaStrategy;
 import com.bootcamp.bank.operaciones.strategy.transferencia.TransferenciaStrategyFactory;
@@ -33,6 +34,8 @@ public class TransferenciaServiceImpl implements TransferenciaService {
 
     private final ClientApiClientes clientApiClientes;
 
+    private final KafkaMonederoMessageSender kafkaMessageSender;
+
      /**
      * Registro de Transferencias
      * @param transferenciaCtaDao
@@ -47,6 +50,7 @@ public class TransferenciaServiceImpl implements TransferenciaService {
                 transferenciaCuentaRepository,
                 operacionesCuentaRepository,
                 clientApiClientes,
+                kafkaMessageSender,
                 transferenciaCtaDao
         );
 
@@ -66,6 +70,8 @@ public class TransferenciaServiceImpl implements TransferenciaService {
             case "TERC" -> cuentasType= CuentasType.TERCEROS;
 
             case "INTB" -> cuentasType= CuentasType.INTERBANCARIA;
+
+            case "MONM" -> cuentasType= CuentasType.MONEDERO_MOVIL;
 
             default -> cuentasType = CuentasType.INVALIDO;
 

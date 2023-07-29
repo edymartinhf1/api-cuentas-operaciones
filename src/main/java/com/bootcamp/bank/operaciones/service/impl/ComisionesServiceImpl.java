@@ -31,6 +31,24 @@ public class ComisionesServiceImpl implements ComisionesService {
     private final ClientApiClientes clientApiClientes;
 
     @Override
+    public Flux<Comision> getComisions() {
+        return operacionesCuentaRepository.findAll()
+                .filter(operacion-> operacion.getAfectoComision()!=null)
+                .filter(operacion-> operacion.getAfectoComision() && operacion.getComision()>0)
+                .map(operacion -> {
+                    Comision com =new Comision();
+                    com.setIdOperacion(operacion.getId());
+                    com.setIdCliente(operacion.getIdCliente());
+                    com.setNumeroCuenta(operacion.getNumeroCuenta());
+                    com.setImporte(operacion.getImporte());
+                    com.setAfectoComision(operacion.getAfectoComision());
+                    com.setMontoComision(operacion.getComision());
+                    return com;
+                });
+
+    }
+
+    @Override
     public Mono<RepCuentaComisiones> getComisionsCharged(String idCliente) {
 
         return clientApiClientes.getClientes(idCliente)

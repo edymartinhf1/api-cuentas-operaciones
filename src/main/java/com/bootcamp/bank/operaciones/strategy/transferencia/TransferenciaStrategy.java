@@ -4,6 +4,7 @@ import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
+import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
 import reactor.core.publisher.Mono;
 
 public interface TransferenciaStrategy {
@@ -11,5 +12,7 @@ public interface TransferenciaStrategy {
                                                     TransferenciaCuentaRepository transferenciaCuentaRepository,
                                                     OperacionesCuentaRepository operacionesCuentaRepository,
                                                     ClientApiClientes clientApiClientes,
-                                                    TransferenciaCtaDao transferenciaCtaDao);
+                                                    KafkaMonederoMessageSender kafkaMessageSender,
+                                                    TransferenciaCtaDao transferenciaCtaDao
+                                                    );
 }

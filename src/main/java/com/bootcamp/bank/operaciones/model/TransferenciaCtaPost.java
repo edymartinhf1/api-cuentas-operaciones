@@ -2,12 +2,20 @@ package com.bootcamp.bank.operaciones.model;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class TransferenciaCtaPost {
+    private String id;
     private String idClienteEmisor;
     private String idClienteReceptor;
     private String cuentaEmisora;
     private String cuentaReceptora;
-    private String tipoTransferencia; //  "PROPI"  "TERC" "INTB"
+    private String numeroCelularEmisor;
+    private String numeroCelularReceptor;
+    private String numeroMonederoEmisor;
+    private String numeroMonederoReceptor;
+    private LocalDateTime fechaOperacion;
+    private String tipoTransferencia; //  "PROPI"  "TERC" "INTB"  "MONM" = Monedero movil
     private Double importeTransferido;
 }

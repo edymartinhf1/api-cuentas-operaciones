@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ComisionesService {
+    Flux<Comision> getComisions();
     Mono<RepCuentaComisiones> getComisionsCharged(String idCliente);
 
     Flux<Comision> getComisionsChargedByAccount(String numeroCuenta);

@@ -24,7 +24,8 @@ public class OperacionesCuentaController {
 
     /**
      * Permite registrar depositos y retiros en cuentas bancarias
-     * permite retirar y depositar con tarjeta de debito
+     * Permite retirar y depositar con tarjeta de debito
+     * Permite registrar operaciones de monedero movil - entregable 4
      *
      * @param operationCtaPost
      * @return

@@ -14,7 +14,11 @@ public class TransferenciaCtaDao {
     private String idClienteReceptor;
     private String cuentaEmisora;
     private String cuentaReceptora;
+    private String numeroCelularEmisor;
+    private String numeroCelularReceptor;
+    private String numeroMonederoEmisor;
+    private String numeroMonederoReceptor;
     private LocalDateTime fechaOperacion;
-    private String tipoTransferencia; //  "PROP"  "TERC" "INTB"
+    private String tipoTransferencia; //  "PROP"  "TERC" "INTB" "MONM"
     private Double importeTransferido;
 }

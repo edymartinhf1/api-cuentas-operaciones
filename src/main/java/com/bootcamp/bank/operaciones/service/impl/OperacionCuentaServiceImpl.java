@@ -7,6 +7,7 @@ import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionTarjetaDebitoRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.enums.MedioPagoType;
+import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
 import com.bootcamp.bank.operaciones.service.OperacionCuentaService;
 import com.bootcamp.bank.operaciones.strategy.mediopago.MedioPagoStrategy;
 import com.bootcamp.bank.operaciones.strategy.mediopago.MedioPagoStrategyFactory;
@@ -36,6 +37,8 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
 
     private final ClientApiCuentas clientApiCuentas;
 
+    private final KafkaMonederoMessageSender kafkaMessageSender;
+
     private final MedioPagoStrategyFactory medioPagoStrategyFactory;
 
     /**
@@ -43,7 +46,7 @@ public class OperacionCuentaServiceImpl implements OperacionCuentaService {
      * aplica comisiones superado el numero de transacciones libres
      * Permite pagos con tarjeta de debito
      * tipoOperacion :  DEP = deposito , RET = RETIRO
-     * medioPago : EFEC = Efectivo / TARD = Tarjeta Debito ,
+     * medioPago : EFEC = Efectivo / TARD = Tarjeta Debito ,MONM = Monedero Movil
      * @param operationCtaDao
      * @return
      */
