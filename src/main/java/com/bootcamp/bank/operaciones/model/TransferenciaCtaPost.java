@@ -16,6 +16,6 @@ public class TransferenciaCtaPost {
     private String numeroMonederoEmisor;
     private String numeroMonederoReceptor;
     private LocalDateTime fechaOperacion;
-    private String tipoTransferencia; //  "PROPI"  "TERC" "INTB"  "MONM" = Monedero movil
+    private String tipoTransferencia; //  "PROPI"  "TERC" "INTB"  "MONM" = Monedero movil , MP2P = Monedero P2P
     private Double importeTransferido;
 }

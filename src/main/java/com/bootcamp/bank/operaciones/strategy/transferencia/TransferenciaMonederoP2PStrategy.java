@@ -12,26 +12,9 @@ import com.bootcamp.bank.operaciones.producer.KafkaMonederoMessageSender;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-/**
- * Permite registrar transferencias de monederoMovil entre clientes del mismo banco;
- */
 @Component
 @Log4j2
-public class TransferenciaMonederoMovilStrategy implements TransferenciaStrategy{
-
-
-
-
-    /**
-     * Metodo de transferencia de un cliente a otro por monedero movil del mismo banco
-     *
-     * @param transferenciaCuentaRepository
-     * @param operacionesCuentaRepository
-     * @param clientApiClientes
-     * @param transferenciaCtaDao
-     * @return
-     */
+public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
     @Override
     public Mono<TransferenciaCtaDao> registrarTransferencia(
             TransferenciaCuentaRepository transferenciaCuentaRepository,
@@ -40,7 +23,6 @@ public class TransferenciaMonederoMovilStrategy implements TransferenciaStrategy
             KafkaMonederoMessageSender kafkaMessageSender,
             TransferenciaCtaDao transferenciaCtaDao
     ) {
-
         return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor())
                 .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente emisor con el id "+transferenciaCtaDao.getIdClienteEmisor())))
                 .flatMap(c-> {

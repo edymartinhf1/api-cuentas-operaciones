@@ -28,4 +28,11 @@ public class ClientApiClientes {
                 .retrieve()
                 .bodyToMono(Cliente.class);
     }
+
+    public Mono<Cliente> getClienteByNumeroCelular(String numeroCelular) {
+        return webClient.get()
+                .uri("/clientes/celular/" + numeroCelular)
+                .retrieve()
+                .bodyToMono(Cliente.class);
+    }
 }
