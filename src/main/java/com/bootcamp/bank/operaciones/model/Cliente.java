@@ -11,5 +11,8 @@ public class Cliente {
     private String nombre;
     private String razonSocial;
     private Double limiteCredito;
-
+    private String numeroDocumento;
+    private String numeroCelular;
+    private String imeiCelular;
+    private String correo;
 }

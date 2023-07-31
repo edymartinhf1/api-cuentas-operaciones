@@ -1,6 +1,7 @@
 package com.bootcamp.bank.operaciones.strategy.transferencia;
 
 import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
+import com.bootcamp.bank.operaciones.clients.ClientApiCuentas;
 import com.bootcamp.bank.operaciones.exception.BusinessException;
 import com.bootcamp.bank.operaciones.model.dao.OperacionCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
@@ -25,6 +26,7 @@ public class TransferenciaPropiasStrategy implements TransferenciaStrategy{
             TransferenciaCuentaRepository transferenciaCuentaRepository,
             OperacionesCuentaRepository operacionesCuentaRepository,
             ClientApiClientes clientApiClientes,
+            ClientApiCuentas clientApiCuentas,
             KafkaMonederoMessageSender kafkaMessageSender,
             TransferenciaCtaDao transferenciaCtaDao
     ) {

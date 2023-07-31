@@ -12,8 +12,14 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Bean
-    public NewTopic bootcampTopic() {
+    public NewTopic monederoTopic() {
         return TopicBuilder.name("monederomovil").build();
     }
+
+    @Bean
+    public NewTopic monederoOperacionTopic() {
+        return TopicBuilder.name("monederooperacionmovil").build();
+    }
+
 
 }

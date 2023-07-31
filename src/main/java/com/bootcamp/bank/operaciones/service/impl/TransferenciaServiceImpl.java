@@ -1,6 +1,7 @@
 package com.bootcamp.bank.operaciones.service.impl;
 
 import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
+import com.bootcamp.bank.operaciones.clients.ClientApiCuentas;
 import com.bootcamp.bank.operaciones.model.dao.TransferenciaCtaDao;
 import com.bootcamp.bank.operaciones.model.dao.repository.OperacionesCuentaRepository;
 import com.bootcamp.bank.operaciones.model.dao.repository.TransferenciaCuentaRepository;
@@ -34,6 +35,8 @@ public class TransferenciaServiceImpl implements TransferenciaService {
 
     private final ClientApiClientes clientApiClientes;
 
+    private final ClientApiCuentas clientApiCuentas;
+
     private final KafkaMonederoMessageSender kafkaMessageSender;
 
      /**
@@ -50,6 +53,7 @@ public class TransferenciaServiceImpl implements TransferenciaService {
                 transferenciaCuentaRepository,
                 operacionesCuentaRepository,
                 clientApiClientes,
+                clientApiCuentas,
                 kafkaMessageSender,
                 transferenciaCtaDao
         );

@@ -1,6 +1,7 @@
 package com.bootcamp.bank.operaciones.strategy.transferencia;
 
 import com.bootcamp.bank.operaciones.clients.ClientApiClientes;
+import com.bootcamp.bank.operaciones.clients.ClientApiCuentas;
 import com.bootcamp.bank.operaciones.exception.BusinessException;
 import com.bootcamp.bank.operaciones.model.MonederoOperacionPost;
 import com.bootcamp.bank.operaciones.model.Response;
@@ -37,53 +38,173 @@ public class TransferenciaMonederoMovilStrategy implements TransferenciaStrategy
             TransferenciaCuentaRepository transferenciaCuentaRepository,
             OperacionesCuentaRepository operacionesCuentaRepository,
             ClientApiClientes clientApiClientes,
+            ClientApiCuentas clientApiCuentas,
             KafkaMonederoMessageSender kafkaMessageSender,
             TransferenciaCtaDao transferenciaCtaDao
     ) {
-
+        // busqueda usuario emisor monedero
         return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor())
-                .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente emisor con el id "+transferenciaCtaDao.getIdClienteEmisor())))
-                .flatMap(c-> {
-                    return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor())
-                            .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente receptor con el id "+transferenciaCtaDao.getIdClienteReceptor())))
-                            .flatMap(d->{
-                                OperacionCtaDao operacionCtaCargo=new OperacionCtaDao();
-                                operacionCtaCargo.setTipoOperacion("RET");
-                                operacionCtaCargo.setNumeroCuenta(transferenciaCtaDao.getCuentaEmisora());
-                                operacionCtaCargo.setIdCliente(transferenciaCtaDao.getIdClienteEmisor());
-                                operacionCtaCargo.setImporte(transferenciaCtaDao.getImporteTransferido());
-                                return operacionesCuentaRepository.save(operacionCtaCargo)
-                                        .flatMap(o -> {
-                                            OperacionCtaDao operacionCtaAbono = new OperacionCtaDao();
-                                            operacionCtaAbono.setTipoOperacion("DEP");
-                                            operacionCtaAbono.setIdCliente(transferenciaCtaDao.getIdClienteReceptor());
-                                            operacionCtaAbono.setNumeroCuenta(transferenciaCtaDao.getCuentaReceptora());
-                                            operacionCtaAbono.setImporte(transferenciaCtaDao.getImporteTransferido());
-                                            return operacionesCuentaRepository.save(operacionCtaAbono)
-                                                    .flatMap(t -> {
-                                                        // Mensajeria KAFKA inicio
-                                                        MonederoOperacionPost monederoOperacionRetiro=new MonederoOperacionPost();
-                                                        monederoOperacionRetiro.setTipoOperacion("RET");
-                                                        monederoOperacionRetiro.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoEmisor());
-                                                        monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
-                                                        monederoOperacionRetiro.setImporte(transferenciaCtaDao.getImporteTransferido());
-                                                        Response responseR=kafkaMessageSender.sendOperacionMonedero(monederoOperacionRetiro);
-                                                        log.info("retiro "+monederoOperacionRetiro.toString());
-                                                        MonederoOperacionPost monederoOperacionDeposito=new MonederoOperacionPost();
-                                                        monederoOperacionDeposito.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoReceptor());
-                                                        monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
-                                                        monederoOperacionDeposito.setTipoOperacion("DEP");
-                                                        monederoOperacionDeposito.setImporte(transferenciaCtaDao.getImporteTransferido());
-                                                        log.info("deposito "+monederoOperacionDeposito.toString());
-                                                        Response responseD=kafkaMessageSender.sendOperacionMonedero(monederoOperacionDeposito);
+                .flatMap(clienteEmisor -> {
+                    log.info(" cliente emisor "+clienteEmisor.toString());
+                    // busqueda cuenta emisor
+                    return clientApiCuentas.getCuentasPorIdCliente(clienteEmisor.getId())
+                            .filter(cuentaEmi -> cuentaEmi.getTipoCuenta().equals("AHO"))
+                            .elementAt(0)
+                            .flatMap(cuentaEmisora -> {
+                                log.info("cuenta emisora "+cuentaEmisora.toString());
+                                // busqueda usuario receptor monedero
+                                return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor())
+                                        .switchIfEmpty(Mono.error(() -> new BusinessException("No existe cliente con el numero celular " + transferenciaCtaDao.getNumeroCelularReceptor())))
+                                        .flatMap(clienteReceptor -> {
+                                            log.info("cliente receptor "+clienteReceptor.toString());
+                                            // busqueda cuenta receptor
+                                            return clientApiCuentas.getCuentasPorIdCliente(clienteReceptor.getId())
+                                                    .filter(cuentaRecep -> cuentaRecep.getTipoCuenta().equals("AHO"))
+                                                    .elementAt(0)
+                                                    .flatMap(cuentaReceptora -> {
 
-                                                        // Mensajeria KAFKA final
-                                                        return transferenciaCuentaRepository.save(transferenciaCtaDao);
+                                                        OperacionCtaDao operacionCtaCargo = new OperacionCtaDao();
+                                                        operacionCtaCargo.setTipoOperacion("RET");
+                                                        operacionCtaCargo.setNumeroCuenta(cuentaEmisora.getNumeroCuenta());
+                                                        operacionCtaCargo.setIdCliente(clienteEmisor.getId());
 
+                                                        operacionCtaCargo.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                        return operacionesCuentaRepository.save(operacionCtaCargo)
+                                                                .flatMap(o -> {
+                                                                    OperacionCtaDao operacionCtaAbono = new OperacionCtaDao();
+                                                                    operacionCtaAbono.setTipoOperacion("DEP");
+                                                                    operacionCtaAbono.setNumeroCuenta(cuentaReceptora.getNumeroCuenta());
+                                                                    operacionCtaAbono.setIdCliente(clienteReceptor.getId());
+                                                                    operacionCtaAbono.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                    return operacionesCuentaRepository.save(operacionCtaAbono)
+                                                                            .flatMap(t -> {
+                                                                                // Mensajeria KAFKA inicio
+                                                                                MonederoOperacionPost monederoOperacionRetiro = new MonederoOperacionPost();
+                                                                                monederoOperacionRetiro.setTipoOperacion("RET");
+                                                                                monederoOperacionRetiro.setIdCliente(operacionCtaCargo.getIdCliente());
+                                                                                monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
+                                                                                //monederoOperacionRetiro.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoEmisor());
+                                                                                //monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
+                                                                                monederoOperacionRetiro.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                                Response responseR = kafkaMessageSender.sendOperacionMonedero(monederoOperacionRetiro);
+                                                                                log.info("retiro " + monederoOperacionRetiro.toString());
+                                                                                MonederoOperacionPost monederoOperacionDeposito = new MonederoOperacionPost();
+                                                                                monederoOperacionDeposito.setIdCliente(operacionCtaAbono.getIdCliente());
+                                                                                monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
+                                                                                //monederoOperacionDeposito.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoReceptor());
+                                                                                //monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
+                                                                                monederoOperacionDeposito.setTipoOperacion("DEP");
+                                                                                monederoOperacionDeposito.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                                log.info("deposito " + monederoOperacionDeposito.toString());
+                                                                                Response responseD = kafkaMessageSender.sendOperacionMonedero(monederoOperacionDeposito);
+
+                                                                                // Mensajeria KAFKA final
+                                                                                return transferenciaCuentaRepository.save(transferenciaCtaDao).map(transferencia->{
+                                                                                    transferencia.setIdClienteEmisor(operacionCtaCargo.getIdCliente());
+                                                                                    transferencia.setCuentaEmisora(operacionCtaCargo.getNumeroCuenta());
+                                                                                    transferencia.setIdClienteReceptor(operacionCtaAbono.getIdCliente());
+                                                                                    transferencia.setCuentaReceptora(operacionCtaAbono.getNumeroCuenta());
+                                                                                    return transferencia;
+                                                                                });
+
+
+                                                                            });
+                                                                });
 
                                                     });
+
+
                                         });
+
                             });
+
                 });
+                /*
+                clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor())
+                .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente emisor con el numero celular "+transferenciaCtaDao.getNumeroCelularEmisor()))
+                .flatMap(cliente-> {
+
+                    return Mono.just(new TransferenciaCtaDao());
+                });
+                 */
     }
+
+/*
+                            //log.info("cliente emisor "+clienteEmisor.toString());
+                            return  Mono.just(new TransferenciaCtaDao());
+                            /*
+                            // busqueda cuenta emisor
+                            return clientApiCuentas.getCuentasPorIdCliente("")
+                                    .filter(cuentaEmi -> cuentaEmi.getTipoCuenta().equals("AHO"))
+                                    .next()
+                                    .flatMap(cuentaEmisora -> {
+                                        // busqueda usuario receptor monedero
+                                        return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor())
+                                                .switchIfEmpty(Mono.error(() -> new BusinessException("No existe cliente con el numero celular " + transferenciaCtaDao.getNumeroCelularReceptor())))
+                                                .flatMap(clienteReceptor -> {
+                                                    log.info("cliente receptor "+clienteReceptor.toString());
+                                                    // busqueda cuenta receptor
+                                                    return clientApiCuentas.getCuentasPorIdCliente(clienteReceptor.getId())
+                                                            .filter(cuentaRecep -> cuentaRecep.getTipoCuenta().equals("AHO"))
+                                                            .next()
+                                                            .flatMap(cuentaReceptora -> {
+
+                                                                OperacionCtaDao operacionCtaCargo = new OperacionCtaDao();
+                                                                operacionCtaCargo.setTipoOperacion("RET");
+                                                                operacionCtaCargo.setNumeroCuenta(cuentaEmisora.getNumeroCuenta());
+                                                                //operacionCtaCargo.setIdCliente(clienteEmisor.getId());
+                                                                operacionCtaCargo.setIdCliente("");
+
+                                                                operacionCtaCargo.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                return operacionesCuentaRepository.save(operacionCtaCargo)
+                                                                        .flatMap(o -> {
+                                                                            OperacionCtaDao operacionCtaAbono = new OperacionCtaDao();
+                                                                            operacionCtaAbono.setTipoOperacion("DEP");
+                                                                            operacionCtaAbono.setNumeroCuenta(cuentaReceptora.getNumeroCuenta());
+                                                                            operacionCtaAbono.setIdCliente(clienteReceptor.getId());
+                                                                            operacionCtaAbono.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                            return operacionesCuentaRepository.save(operacionCtaAbono)
+                                                                                    .flatMap(t -> {
+                                                                                        // Mensajeria KAFKA inicio
+                                                                                        MonederoOperacionPost monederoOperacionRetiro = new MonederoOperacionPost();
+                                                                                        monederoOperacionRetiro.setTipoOperacion("RET");
+                                                                                        monederoOperacionRetiro.setIdCliente(operacionCtaCargo.getIdCliente());
+                                                                                        monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
+                                                                                        //monederoOperacionRetiro.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoEmisor());
+                                                                                        //monederoOperacionRetiro.setNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor());
+                                                                                        monederoOperacionRetiro.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                                        Response responseR = kafkaMessageSender.sendOperacionMonedero(monederoOperacionRetiro);
+                                                                                        log.info("retiro " + monederoOperacionRetiro.toString());
+                                                                                        MonederoOperacionPost monederoOperacionDeposito = new MonederoOperacionPost();
+                                                                                        monederoOperacionDeposito.setIdCliente(operacionCtaAbono.getIdCliente());
+                                                                                        monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
+                                                                                        //monederoOperacionDeposito.setNumeroMonedero(transferenciaCtaDao.getNumeroMonederoReceptor());
+                                                                                        //monederoOperacionDeposito.setNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor());
+                                                                                        monederoOperacionDeposito.setTipoOperacion("DEP");
+                                                                                        monederoOperacionDeposito.setImporte(transferenciaCtaDao.getImporteTransferido());
+                                                                                        log.info("deposito " + monederoOperacionDeposito.toString());
+                                                                                        Response responseD = kafkaMessageSender.sendOperacionMonedero(monederoOperacionDeposito);
+
+                                                                                        // Mensajeria KAFKA final
+                                                                                        return transferenciaCuentaRepository.save(transferenciaCtaDao);
+
+
+                                                                                    });
+                                                                        });
+
+                                                            });
+
+
+                                                });
+
+                                    });
+
+                             */
+
+//                        });
+
+
+    //}
+
+
 }
