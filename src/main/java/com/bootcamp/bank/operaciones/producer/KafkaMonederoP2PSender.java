@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 @Log4j2
 @RequiredArgsConstructor
 public class KafkaMonederoP2PSender {
+    public static final String MENSAJE_ENVIADO_CORRECTAMENTE = "Mensaje enviado correctamente";
+    public static final String ERROR_EN_EL_ENVIO_DE_MENSAJE_A_KAFKA = "Ocurrrio un error en el envio de mensaje a kafka";
     @Autowired
     private KafkaTemplate<String,String> kafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -25,15 +27,15 @@ public class KafkaMonederoP2PSender {
      * @param operacionP2PRequest
      */
     public Response sendOperationP2PRequest(OperacionP2PRequest operacionP2PRequest) {
-        log.info("publish");
+        log.info("publish sendOperationP2PRequest");
         Response response=new Response();
         try {
             String OperationP2PAsMessage = objectMapper.writeValueAsString(operacionP2PRequest);
             kafkaTemplate.send("OperationP2PAsMessage", OperationP2PAsMessage);
             response.setCodigo("01");
-            response.setMensaje("mensaje enviado correctamente");
+            response.setMensaje(MENSAJE_ENVIADO_CORRECTAMENTE);
         }catch(JsonProcessingException ex){
-            response.setMensaje("ocurrrio un error en el envio de mensaje a kafka");
+            response.setMensaje(ERROR_EN_EL_ENVIO_DE_MENSAJE_A_KAFKA);
             log.error("error "+ex.getMessage());
         }
         return  response;
@@ -41,7 +43,7 @@ public class KafkaMonederoP2PSender {
     }
 
     public Response sendOperationP2PAccept(OperacionP2PAccept operacionP2PAccept) {
-        log.info("publish");
+        log.info("publish sendOperationP2PAccept");
         Response response=new Response();
         try {
 
@@ -50,11 +52,11 @@ public class KafkaMonederoP2PSender {
             String OperationP2PAsMessage = objectMapper.writeValueAsString(operacionP2PAccept);
             kafkaTemplate.send("operacionP2PAccept", OperationP2PAsMessage);
             response.setCodigo("01");
-            response.setMensaje("mensaje enviado correctamente");
+            response.setMensaje(MENSAJE_ENVIADO_CORRECTAMENTE);
 
 
         }catch(JsonProcessingException ex){
-            response.setMensaje("ocurrrio un error en el envio de mensaje a kafka");
+            response.setMensaje(ERROR_EN_EL_ENVIO_DE_MENSAJE_A_KAFKA);
             log.error("error "+ex.getMessage());
         }
         return  response;
@@ -62,15 +64,15 @@ public class KafkaMonederoP2PSender {
     }
 
     public Response sendOperationP2PValidate(OperacionP2PValidate operacionP2PValidate) {
-        log.info("publish");
+        log.info("publish sendOperationP2PValidate");
         Response response=new Response();
         try {
             String OperationP2PAsMessage = objectMapper.writeValueAsString(operacionP2PValidate);
             kafkaTemplate.send("operacionP2PValidate", OperationP2PAsMessage);
             response.setCodigo("01");
-            response.setMensaje("mensaje enviado correctamente");
+            response.setMensaje(MENSAJE_ENVIADO_CORRECTAMENTE);
         }catch(JsonProcessingException ex){
-            response.setMensaje("ocurrrio un error en el envio de mensaje a kafka");
+            response.setMensaje(ERROR_EN_EL_ENVIO_DE_MENSAJE_A_KAFKA);
             log.error("error "+ex.getMessage());
         }
         return  response;
