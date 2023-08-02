@@ -17,8 +17,13 @@ import reactor.core.publisher.Mono;
 @Log4j2
 public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
 
+
+
     /**
-     * Metodo de transferencia de un cliente a otro por monedero movil del mismo banco
+     * Metodo de transferencia de un cliente a otro por monedero movil P2P
+     * - valida el numero de celular del emisor
+     * - valida el numero de cuenta vinculada al monedero
+     * - valida el monto en base a el saldo disponible en la cuenta vinculada al monedero P2P
      *
      * @param transferenciaCuentaRepository
      * @param operacionesCuentaRepository
@@ -38,18 +43,28 @@ public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
         // busqueda usuario emisor monedero
         return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularEmisor())
                 .flatMap(clienteEmisor -> {
-                    log.info(" cliente emisor "+clienteEmisor.toString());
+                    log.info(" cliente emisor " + clienteEmisor.toString());
                     // busqueda cuenta emisor
                     return clientApiCuentas.getCuentasPorIdCliente(clienteEmisor.getId())
                             .filter(cuentaEmi -> cuentaEmi.getTipoCuenta().equals("AHO"))
                             .elementAt(0)
                             .flatMap(cuentaEmisora -> {
-                                log.info("cuenta emisora "+cuentaEmisora.toString());
+                                log.info("cuenta emisora " + cuentaEmisora.toString());
+                                return Mono.zip(this.getOperacionesPorTipo(operacionesCuentaRepository, cuentaEmisora.getNumeroCuenta(), "DEP"), getOperacionesPorTipo(operacionesCuentaRepository, cuentaEmisora.getNumeroCuenta(), "RET"), (deposito, retiro) -> {
+                                    cuentaEmisora.setDepositos(deposito);
+                                    cuentaEmisora.setRetiros(retiro);
+                                    cuentaEmisora.setSaldos(deposito+(retiro*-1));
+                                    return cuentaEmisora;
+                                });
+                            }).flatMap(cuenta -> {
+                                if (cuenta.getSaldos()<transferenciaCtaDao.getImporteTransferido()){
+                                    return Mono.error(() -> new BusinessException("El saldo de la cuenta no cubre el monto a transferir " + transferenciaCtaDao.getNumeroCelularReceptor()));
+                                }
                                 // busqueda usuario receptor monedero
                                 return clientApiClientes.getClienteByNumeroCelular(transferenciaCtaDao.getNumeroCelularReceptor())
                                         .switchIfEmpty(Mono.error(() -> new BusinessException("No existe cliente con el numero celular " + transferenciaCtaDao.getNumeroCelularReceptor())))
                                         .flatMap(clienteReceptor -> {
-                                            log.info("cliente receptor "+clienteReceptor.toString());
+                                            log.info("cliente receptor " + clienteReceptor.toString());
                                             // busqueda cuenta receptor
                                             return clientApiCuentas.getCuentasPorIdCliente(clienteReceptor.getId())
                                                     .filter(cuentaRecep -> cuentaRecep.getTipoCuenta().equals("AHO"))
@@ -58,7 +73,7 @@ public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
 
                                                         OperacionCtaDao operacionCtaCargo = new OperacionCtaDao();
                                                         operacionCtaCargo.setTipoOperacion("RET");
-                                                        operacionCtaCargo.setNumeroCuenta(cuentaEmisora.getNumeroCuenta());
+                                                        operacionCtaCargo.setNumeroCuenta(cuenta.getNumeroCuenta());
                                                         operacionCtaCargo.setIdCliente(clienteEmisor.getId());
 
                                                         operacionCtaCargo.setImporte(transferenciaCtaDao.getImporteTransferido());
@@ -88,7 +103,7 @@ public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
                                                                                 Response responseD = kafkaMessageSender.sendOperacionMonedero(monederoOperacionDeposito);
 
                                                                                 // Mensajeria KAFKA final
-                                                                                return transferenciaCuentaRepository.save(transferenciaCtaDao).map(transferencia->{
+                                                                                return transferenciaCuentaRepository.save(transferenciaCtaDao).map(transferencia -> {
                                                                                     transferencia.setIdClienteEmisor(operacionCtaCargo.getIdCliente());
                                                                                     transferencia.setCuentaEmisora(operacionCtaCargo.getNumeroCuenta());
                                                                                     transferencia.setIdClienteReceptor(operacionCtaAbono.getIdCliente());
@@ -107,7 +122,13 @@ public class TransferenciaMonederoP2PStrategy implements TransferenciaStrategy{
 
                             });
 
+
                 });
+
+    }
+
+    public Mono<Double> getOperacionesPorTipo(OperacionesCuentaRepository operacionesCuentaRepository, String numeroCuenta,String tipo) {
+        return operacionesCuentaRepository.findByNumeroCuentaAndTipoOperacion(numeroCuenta,tipo).reduce(0.00, (acum,e)->acum+e.getImporte());
 
     }
 

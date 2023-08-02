@@ -20,5 +20,9 @@ public class Cuenta {
     private Integer numMaximoMovimientos;
     private Double  montoMinimoApertura;
     private Integer numeroMaximoTransaccionesLibres;
+    private Double retiros;
+    private Double depositos;
+    private Double saldos;
+
 
 }
