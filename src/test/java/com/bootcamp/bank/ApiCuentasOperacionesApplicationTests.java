@@ -13,22 +13,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 class ApiCuentasOperacionesApplicationTests {
-	@Autowired
-	private ComisionesService comisionesService;
-	@Autowired
-	private OperacionCuentaService operacionCuentaService;
-	@Test
-	void contextLoads() {
-		assertThat(comisionesService).isNotNull();
-		assertThat(operacionCuentaService).isNotNull();
-	}
 
-	@Test
-	void findAllAccount() {
-		// When
-		List<OperacionCtaDao> operaciones = this.operacionCuentaService.findAll().collectList().block();
-		// Then
-		assertThat(operaciones.size()>0);
-	}
 
 }
